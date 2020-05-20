@@ -1,0 +1,25 @@
+{
+  "@odata.context": "https://sj-search.search.windows.net/$metadata#indexers/$entity",
+  "@odata.etag": "\"0x8D7FC9C6E61A828\"",
+  "name": "pokeapi-indexer",
+  "description": "",
+  "dataSourceName": "pokeapi-datasource",
+  "skillsetName": null,
+  "targetIndexName": "pokeapi-index",
+  "disabled": null,
+  "schedule": null,
+  "parameters": {
+    "batchSize": null,
+    "maxFailedItems": 0,
+    "maxFailedItemsPerBatch": 0,
+    "base64EncodeKeys": null,
+    "configuration": {
+      "dataToExtract": "contentAndMetadata",
+      "parsingMode": "json"
+    }
+  },
+  "fieldMappings": [
+  ],
+  "outputFieldMappings": [],
+  "cache": null
+}
