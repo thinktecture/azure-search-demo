@@ -4,7 +4,7 @@
     {
       "name": "height",
       "type": "Edm.Int64",
-      "facetable": false,
+      "facetable": true,
       "filterable": true,
       "retrievable": true,
       "sortable": true,
@@ -22,7 +22,7 @@
       "key": true,
       "retrievable": true,
       "searchable": false,
-      "sortable": false,
+      "sortable": true,
       "analyzer": null,
       "indexAnalyzer": null,
       "searchAnalyzer": null,
@@ -82,8 +82,8 @@
             {
               "name": "name",
               "type": "Edm.String",
-              "facetable": false,
-              "filterable": false,
+              "facetable": true,
+              "filterable": true,
               "key": false,
               "retrievable": true,
               "searchable": true,
@@ -213,7 +213,13 @@
       "fields": []
     }
   ],
-  "suggesters": [],
+  "suggesters": [
+    {
+      "name": "pokeapi-name-suggester",
+      "searchMode": "analyzingInfixMatching",
+      "sourceFields": ["name"]
+    }
+  ],
   "scoringProfiles": [],
   "defaultScoringProfile": "",
   "corsOptions": {

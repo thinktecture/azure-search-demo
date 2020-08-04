@@ -28,7 +28,7 @@ namespace AzureSearchServerless
             HttpRequest req, ILogger log, ExecutionContext executionContext)
         {
             log.LogInformation("Start rebuilding search index");
-            
+
             using var httpClient = new HttpClient();
             log.LogInformation("Retrieving data urls.");
             var response = await httpClient.GetAsync(Environment.GetEnvironmentVariable("DataUrl"));
@@ -53,7 +53,10 @@ namespace AzureSearchServerless
                 var hashBytes =
                     md5.ComputeHash(Encoding.ASCII.GetBytes(await detailResponse.Content.ReadAsStringAsync()));
                 var md5Hash = new StringBuilder();
-                foreach (var t in hashBytes) md5Hash.Append(t.ToString("X2"));
+                foreach (var t in hashBytes)
+                {
+                    md5Hash.Append(t.ToString("X2"));
+                }
 
                 try
                 {

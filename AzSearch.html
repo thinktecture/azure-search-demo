@@ -48,7 +48,12 @@
                     <div id="clearFilters"></div>
                     <ul class="nav nav-sidebar">
                         <div className="panel panel-primary behclick-panel">
-                            
+                            <li>
+                                <div id="heightFacet">
+                                </div>
+                                <div id="weightFacet">
+                                </div>
+                            </li>
                         </div>
                     </ul>
                 </div>
@@ -77,17 +82,54 @@
     // Initialize and connect to your search service
     var automagic = new AzSearch.Automagic({ index: "pokeapi-index", queryKey: "E7244922729148348F4F000458718DDC", service: "sj-search" });
     
-    const resultTemplate = `<div class="col-xs-12 col-sm-9 col-md-9"><h4>{{name}}</h4><div class="resultDescription">{{{weight}}}</div></div>`;
+const resultTemplate =
+    `<div class="col-xs-6 result_img" >
+        <div class="col-xs-6">
+               <img class="img-responsive result_img" src={{sprites.front_default}} alt="image not found" />
+        </div>
+        <div class="col-xs-6">
+        <b>{{name}} (#{{id}})</b>
+        <div class="resultDescription">
+            Weight: {{weight}}<br>
+            Height: {{height}}<br>
+            Type: {{types.0.type.name}}
+        </div>
+        </div>
+
+     </div>`;
+
 
     // add a results view using the template defined above
-    automagic.addResults("results", { count: true }, resultTemplate);
+    automagic.addResults("results", { count: true, orderby: "name" }, resultTemplate);
     
     // Adds a pager control << 1 2 3 ... >>
     automagic.addPager("pager");
     
-        automagic.addSearchBox("searchBox");
-        
-    
+    // Set some processors to format results for display
+    var suggestionsProcessor = function (results) {
+        return results.map(function (result) {
+            result.searchText = result["@search.text"];
+            return result;
+        });
+    };
+
+    automagic.store.setSuggestionsProcessor(suggestionsProcessor);
+
+    var suggestionsTemplate = `<p> {{name}} </p>`;
+
+    // Add a search box that uses suggester "pokeapi-name-suggester", grabbing some additional fields to display during suggestions. Use the template defined above
+    automagic.addSearchBox("searchBox",
+        {
+            highlightPreTag: "<b>",
+            highlightPostTag: "</b>",
+            suggesterName: "pokeapi-name-suggester",
+            select: "name"
+        },
+        "",
+        suggestionsTemplate);
+
+    automagic.addRangeFacet("weightFacet", "weight", "number", 0, 9999);
+    // automagic.addRangeFacet("heightFacet", "height", "number", 0, 1000);
 
     // Adds a button to clear any applied filters
     automagic.addClearFiltersButton("clearFilters");
