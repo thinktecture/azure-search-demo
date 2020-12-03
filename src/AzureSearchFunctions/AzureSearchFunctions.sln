@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureSearchServerless", "AzureSearchServerless.csproj", "{55110ACC-782E-4522-8D9A-D660336E131C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureSearchFunctions", "AzureSearchFunctions.csproj", "{55110ACC-782E-4522-8D9A-D660336E131C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
