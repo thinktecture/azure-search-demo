@@ -61,7 +61,18 @@ namespace AzureSearchServerless
                 var serviceClient = new SearchServiceClient(
                     Environment.GetEnvironmentVariable("SEARCH_SERVICE_NAME"),
                     new SearchCredentials(Environment.GetEnvironmentVariable("SEARCH_API_KEY")));
+                
+                log.LogInformation("Delete existing data source");
+                if (await serviceClient.DataSources.ExistsAsync(searchIndexerConfig.DataSourceName))
+                    await serviceClient.DataSources.DeleteAsync(searchIndexerConfig.DataSourceName);
 
+                await serviceClient.DataSources.CreateAsync(
+                    DataSource.AzureBlobStorage(searchIndexerConfig.DataSourceName,
+                        Environment.GetEnvironmentVariable("AzureBlogStorageConnectionString"),
+                        Environment.GetEnvironmentVariable("IndexContainerName")));
+                
+                log.LogInformation("Create new data source");
+                
                 log.LogInformation("Delete existing Index");
                 if (await serviceClient.Indexes.ExistsAsync(searchIndexConfig.Name))
                     await serviceClient.Indexes.DeleteAsync(searchIndexConfig.Name);
@@ -70,9 +81,11 @@ namespace AzureSearchServerless
                 await serviceClient.Indexes.CreateAsync(searchIndexConfig);
 
 
+                log.LogInformation("Delete existing indexer");
                 if (await serviceClient.Indexers.ExistsAsync(searchIndexerConfig.Name))
                     await serviceClient.Indexers.DeleteAsync(searchIndexerConfig.Name);
 
+                log.LogInformation("Create new Indexer");
                 await serviceClient.Indexers.CreateAsync(searchIndexerConfig);
 
                 // Exception is thrown on the lowest pricing tier
@@ -134,7 +147,6 @@ namespace AzureSearchServerless
                 }
                 try
                 {
-                    var fileName = GetHashBasedFileName(await response.Content.ReadAsStringAsync());
                     await blobContainerClient.UploadBlobAsync($"{Guid.NewGuid()}.json", await response.Content.ReadAsStreamAsync());
                 }
                 catch (RequestFailedException)
@@ -158,8 +170,5 @@ namespace AzureSearchServerless
                 return default(T);
             }
         }
-
-
-
     }
 }
