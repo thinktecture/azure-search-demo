@@ -25,8 +25,8 @@ namespace AzureSearchServerless
 
         [FunctionName("Rebuild")]
         public static async Task<IActionResult> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Function, "POST", Route = "rebuild-index/{count}")]
-            HttpRequest req, int count,
+            [HttpTrigger(AuthorizationLevel.Function, "POST", Route = "rebuild-index/{count}")] 
+            int count,
             ILogger log, ExecutionContext executionContext)
         {
             if (count < 1)
