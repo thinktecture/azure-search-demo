@@ -18,7 +18,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace AzureSearchServerless
+namespace AzureSearchFunctions
 {
     public static class SearchIndex
     {
@@ -26,6 +26,7 @@ namespace AzureSearchServerless
         [FunctionName("Rebuild")]
         public static async Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "POST", Route = "rebuild-index/{count}")] 
+            HttpRequest req,
             int count,
             ILogger log, ExecutionContext executionContext)
         {
@@ -61,18 +62,7 @@ namespace AzureSearchServerless
                 var serviceClient = new SearchServiceClient(
                     Environment.GetEnvironmentVariable("SEARCH_SERVICE_NAME"),
                     new SearchCredentials(Environment.GetEnvironmentVariable("SEARCH_API_KEY")));
-                
-                log.LogInformation("Delete existing data source");
-                if (await serviceClient.DataSources.ExistsAsync(searchIndexerConfig.DataSourceName))
-                    await serviceClient.DataSources.DeleteAsync(searchIndexerConfig.DataSourceName);
 
-                await serviceClient.DataSources.CreateAsync(
-                    DataSource.AzureBlobStorage(searchIndexerConfig.DataSourceName,
-                        Environment.GetEnvironmentVariable("AzureBlogStorageConnectionString"),
-                        Environment.GetEnvironmentVariable("IndexContainerName")));
-                
-                log.LogInformation("Create new data source");
-                
                 log.LogInformation("Delete existing Index");
                 if (await serviceClient.Indexes.ExistsAsync(searchIndexConfig.Name))
                     await serviceClient.Indexes.DeleteAsync(searchIndexConfig.Name);
@@ -84,6 +74,16 @@ namespace AzureSearchServerless
                 log.LogInformation("Delete existing indexer");
                 if (await serviceClient.Indexers.ExistsAsync(searchIndexerConfig.Name))
                     await serviceClient.Indexers.DeleteAsync(searchIndexerConfig.Name);
+                
+                log.LogInformation("Delete existing data source");
+                if (await serviceClient.DataSources.ExistsAsync(searchIndexerConfig.DataSourceName))
+                    await serviceClient.DataSources.DeleteAsync(searchIndexerConfig.DataSourceName);
+
+                log.LogInformation("Create new data source");
+                await serviceClient.DataSources.CreateAsync(
+                    DataSource.AzureBlobStorage(searchIndexerConfig.DataSourceName,
+                        Environment.GetEnvironmentVariable("AzureBlogStorageConnectionString"),
+                        Environment.GetEnvironmentVariable("IndexContainerName")));
 
                 log.LogInformation("Create new Indexer");
                 await serviceClient.Indexers.CreateAsync(searchIndexerConfig);
@@ -121,7 +121,7 @@ namespace AzureSearchServerless
         private static async Task UpdateAzureBlobStorageAsync(int count, ILogger logger)
         {
             logger.LogInformation("Start rebuilding search index");
-            using var httpClient = new HttpClient();
+            
 
             logger.LogInformation("Retrieving data urls.");
             var dataUrls = GetDataUrls(count);
@@ -138,6 +138,7 @@ namespace AzureSearchServerless
             logger.LogInformation("Upload data files into blob storage.");
             dataUrls.ToList().ForEach(async dataUrl =>
             {
+                using var httpClient = new HttpClient();
                 logger.LogInformation($"Retrieving data for url: {dataUrl}");
                 var response = await httpClient.GetAsync(dataUrl);
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
