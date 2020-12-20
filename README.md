@@ -28,3 +28,12 @@ As {count} you use the number of Pokemon you want to index. The number has to be
 `Index successfully re-created`
 
 If the index creation was finished you will be able to use your Azure search index and query the indexed PokeApi data.
+
+## Frontend
+
+To use the `index.html` in the fronted folder you have to update following keys in the file:
+- YOUR_INDEX_NAME: Your Azure Search index name
+- YOUR_SEARCH_KEY: Your Azure Search key
+- YOUR_SEARCH_SERVICE: Name of your Azure Search Service
+
+After you have update the `index.html` you can just open it in a browser and search your indexed data.
